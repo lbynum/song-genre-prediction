@@ -2,7 +2,6 @@ import csv
 import pickle
 
 import numpy as np
-import pandas as pd
 
 try:
     pickled_data_path = 'data/musixmatch/pickled/'
@@ -11,8 +10,8 @@ try:
     X_train = np.load(pickled_data_path + 'X_train.npy')
 
     print 'X_train: {} array'.format(X_train.shape)
-    print 'TID_list_train: list of {}'.format(len(TID_list))
-    print 'MXMID_list_train: list of {}'.format(len(MXMID_list))
+    print 'TID_list_train: list of {}'.format(len(TID_list_train))
+    print 'MXMID_list_train: list of {}'.format(len(MXMID_list_train))
 
     print '''\nFiles already created -- try the following to load data:
 
