@@ -9,17 +9,17 @@ try:
     MXMID_list_train = pickle.load(open(pickled_data_path + 'MXMID_list_train', 'rb'))
     X_train = np.load(pickled_data_path + 'X_train.npy')
 
-    print 'X_train: {} array'.format(X_train.shape)
-    print 'TID_list_train: list of {}'.format(len(TID_list_train))
-    print 'MXMID_list_train: list of {}'.format(len(MXMID_list_train))
+    print('X_train: {} array'.format(X_train.shape))
+    print('TID_list_train: list of {}'.format(len(TID_list_train)))
+    print('MXMID_list_train: list of {}'.format(len(MXMID_list_train)))
 
-    print '''\nFiles already created -- try the following to load data:
+    print('''\nFiles already created -- try the following to load data:
 
     pickled_data_path = 'data/musixmatch/pickled/'
     TID_list_train = pickle.load(open(pickled_data_path+'TID_list_train', 'rb'))
     MXMID_list_train = pickle.load(open(pickled_data_path+'MXMID_list_train', 'rb'))
     X_train = np.load(pickled_data_path+'X_train.npy')
-    '''
+    ''')
 
 except:
     raw_data_path = 'data/musixmatch/mxm_dataset_train.txt'
@@ -34,7 +34,7 @@ except:
         for i, row in enumerate(reader):
             # progress update
             if i % 1000 == 0:
-                print i
+                print(i)
 
             # keep track of row indices for observations
             row_index = i - num_rows_skipped
