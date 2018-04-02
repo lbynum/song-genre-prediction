@@ -1,0 +1,3 @@
+[submodule "MSongsDB"]
+	path = MSongsDB
+	url = https://github.com/tbertinmahieux/MSongsDB
