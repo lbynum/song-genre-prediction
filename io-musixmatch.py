@@ -61,6 +61,6 @@ except:
                 X_train[row_index, col_index] = word_count
 
     # store as pickle objects
-    pickle.dump(TID_list, open('TID_list_train', 'wb'))
-    pickle.dump(MXMID_list, open('MXMID_list_train', 'wb'))
-    np.save('X_train', X_train)
+    pickle.dump(TID_list, open(pickled_data_path+'TID_list_train', 'wb'))
+    pickle.dump(MXMID_list, open(pickled_data_path+'MXMID_list_train', 'wb'))
+    np.save(pickled_data_path+'X_train', X_train)
