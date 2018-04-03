@@ -76,10 +76,10 @@ def avg_feature_all_files(basedir, genre_dict, ext='.h5'):
                 loudness = GETTERS.get_loudness(h5)
                 song_hotttnesss = GETTERS.get_song_hotttnesss(h5)
                 tempo = GETTERS.get_tempo(h5)
-                example = pd.DataFrame(data=[(genre, danceability, duration, 
+                example = pd.DataFrame(data=[(song_id, genre, danceability, duration, 
                                               end_of_fade_in, energy, loudness, 
                                               song_hotttnesss, tempo)], 
-                                       columns=['genre', 'danceability', 
+                                       columns=['song_id', 'genre', 'danceability', 
                                                 'duration', 'end_of_fade_in', 
                                                 'energy', 'loudness', 
                                                 'song_hotttnesss', 'tempo'])
@@ -103,7 +103,7 @@ def main():
     features_vs_genre = avg_feature_all_files(msd_subset_data_path, genre_dict)
     
     # write csv file
-    features_vs_genre.to_csv('./features_vs_genre.csv')
+    features_vs_genre.to_csv('./features_vs_genre.csv', index=False)
 
         
 
