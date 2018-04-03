@@ -1,9 +1,7 @@
 import csv
-import pickle
 
 import numpy as np
-from scipy.sparse import csr_matrix
-from scipy.io import mmwrite, mmread
+
 
 class MusixMatchData:
     '''
@@ -30,6 +28,7 @@ class MusixMatchData:
         self.MXMID = MXMID
         self.vocab = vocab
 
+
     def write_to_pickle(self, X_filename, genre_filename):
         '''
         Load text files into X, TID, and MXMID and store as pickled objects.
@@ -38,11 +37,9 @@ class MusixMatchData:
         --------------------
             X_filename      -- string, filename of predictors
             genre_filename  -- string, filename of genre file
-            n               -- int, number of observations
-            d               -- int, number of features
         '''
         # define dimensions (hard coded for now)
-        # n = 73658 # num observations in genres.csv UNION mxm_dataset_train
+        # n = 73658 # num observations in genres.csv INT mxm_dataset_train
         n = 191402 # num observations in genres.csv
         d = 5000 # number of words in training data vocabulary
 
@@ -136,7 +133,6 @@ class MusixMatchData:
         X = X[mxm_sort_indices]
         MXMID = MXMID[mxm_sort_indices]
 
-
         # set as member data
         self.X = X
         self.y = y
@@ -153,15 +149,10 @@ class MusixMatchData:
         np.save(pickled_data_path+'X', X)
         np.save(pickled_data_path+'y', y)
 
+
     def load_from_pickle(self):
         '''
-        Load pickled files into X, TID, and MXMID.
-
-        Parameters
-        --------------------
-            filename    -- string, filename
-            n           -- int, number of observations
-            d           -- int, number of features
+        Load pickled files into X, y, TID, MXMID, and vocab.
         '''
         pickled_data_path = 'data/musixmatch/pickled/'
         print('Loading data from: {}'.format(pickled_data_path))
@@ -171,6 +162,7 @@ class MusixMatchData:
         self.y = np.load(pickled_data_path+'y.npy')
         # self.X = mmread(pickled_data_path + 'X.mtx')
         self.vocab = np.load(pickled_data_path+'vocab.npy')
+
 
     def get_one_genre(self, genre_name):
         '''
@@ -184,12 +176,5 @@ class MusixMatchData:
         --------------------
             X           -- numpy array, observations for given genre
         '''
-        return self.X[self.y == genre_name]
-
-
-
-# mmdata = MusixMatchData()
-# mmdata.write_to_pickle(filename='data/musixmatch/mxm_dataset_train.txt',
-#                        n=210519,
-#                        d=5000)
-# mmdata.load_from_pickle()
+        X = self.X[self.y == genre_name]
+        return X
