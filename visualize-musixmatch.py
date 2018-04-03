@@ -6,11 +6,11 @@ from util import MusixMatchData
 
 def barplot_top_n(word_counts, n, y_label='', title=''):
     # sort by count
-    word_counts = sorted(word_counts, key=lambda pair: pair[1], reverse=True)
+    sorted_pairs = sorted(word_counts, key=lambda pair: pair[1], reverse=True)
 
     # select words and counts for plot
-    words = [pair[0] for pair in word_counts[:n]]
-    counts = [pair[1] for pair in word_counts[:n]]
+    words = [pair[0] for pair in sorted_pairs[:n]]
+    counts = [pair[1] for pair in sorted_pairs[:n]]
 
     plt.figure()
     y_pos = np.arange(len(words))
@@ -20,6 +20,32 @@ def barplot_top_n(word_counts, n, y_label='', title=''):
     plt.title(title)
     plt.show()
 
+def remove_stopwords(word_counts):
+    stop_words = set(stopwords.words('english'))
+    word_counts = [pair for pair in word_counts
+                   if pair[0] not in stop_words]
+    return word_counts
+
+def compute_total_occurrences(X, vocab):
+    ## compute total word counts
+    print('Computing total word counts...')
+    col_sums = np.sum(X, axis=0)
+
+    # add words to counts (make list so zip object playes nice)
+    word_counts = list(zip(vocab, col_sums))
+
+    return word_counts
+
+def compute_song_occurrences(X, vocab):
+    print('Computing word counts across songs...')
+    # compute word indicators
+    indicators = X > 0
+    # sum across indicators to count number of songs each word shows up in
+    col_sums = np.sum(indicators, axis=0)
+    # add words to counts
+    word_counts = list(zip(vocab, col_sums))
+
+    return word_counts
 
 
 def main():
@@ -32,60 +58,51 @@ def main():
             X_filename='data/musixmatch/mxm_dataset_train.txt',
             genre_filename='genres.csv')
 
-    ## compute total word counts
-    print('Computing total word counts...')
-    col_sums = np.sum(data.X, axis=0)
-    # add words to counts
-    word_counts = zip(data.vocab, col_sums)
+    word_counts = compute_total_occurrences(data.X, data.vocab)
 
     ## barplot for highest occurring words
     barplot_top_n(word_counts,
                   n=20,
-                  y_label='Number of occurrences in corpus',
-                  title='Highest occurring words')
+                  y_label='Occurrences in corpus',
+                  title='Highest occurring words -- All genres')
 
-    ## barplot for highest occurring words minus stopwords
-    # remove stopwords
-    stop_words = set(stopwords.words('english'))
-    print(word_counts)
-    word_counts = [pair for pair in word_counts
-                   if pair[0] not in stop_words]
-    print(word_counts)
-    barplot_top_n(word_counts,
+    ## barplot for highest occurring words without stopwords
+    barplot_top_n(remove_stopwords(word_counts),
                   n=20,
-                  y_label='Number of occurrences in corpus',
-                  title='Highest occurring words without stopwords')
+                  y_label='Occurrences in corpus',
+                  title='Highest occurring words without stopwords -- All genres')
 
+    word_counts = compute_song_occurrences(data.X, data.vocab)
 
     ## bar plot -- most popular words across all songs
-    print('Computing word counts across songs...')
-    # compute word indicators
-    indicators = data.X > 0
-    # sum across indicators to count number of songs each word shows up in
-    col_sums = np.sum(indicators, axis=0)
-    # add words to counts
-    word_counts = zip(data.vocab, col_sums)
-
     barplot_top_n(word_counts,
                   n=20,
                   y_label='Number of songs',
-                  title='Most popular words')
+                  title='Most popular words -- All genres')
 
     ## bar plot -- most popular words across all songs without stopwords
-    word_counts = [pair for pair in word_counts
-                   if pair[0] not in stop_words]
-
-    barplot_top_n(word_counts,
+    barplot_top_n(remove_stopwords(word_counts),
                   n=20,
                   y_label='Number of songs',
-                  title='Most popular words without stopwords')
+                  title='Most popular words without stopwords -- All genres')
 
 
-
-    # TODO: look at same plot for each genre
-
-
-
+    genres = np.unique(data.y)
+    for genre in genres:
+        X = data.get_one_genre(genre)
+        # most occurring
+        word_counts = compute_total_occurrences(X, data.vocab)
+        barplot_top_n(remove_stopwords(word_counts),
+                      n=20,
+                      y_label='Occurrences in corpus',
+                      title='Highest occuring words without stopwords -- {}'.format(genre))
+        # most popular
+        word_counts = compute_song_occurrences(X, data.vocab)
+        barplot_top_n(remove_stopwords(word_counts),
+                      n=20,
+                      y_label='Number of songs',
+                      title='Most popular words without stopwords -- {}'.format(
+                          genre))
 
 
 if __name__ == '__main__':
