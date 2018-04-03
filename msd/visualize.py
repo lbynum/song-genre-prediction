@@ -86,7 +86,7 @@ def avg_feature_all_files(basedir, genre_dict, ext='.h5'):
                 features_vs_genre = features_vs_genre.append(example)
             h5.close()
 
-    return genre_vs_features
+    return features_vs_genre
 
 def main():
     genres_data_frame = pd.read_csv(msd_code_path+'/../genres.csv', 
