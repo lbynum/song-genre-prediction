@@ -1,21 +1,23 @@
 import pickle
 
 import numpy as np
+import pandas as pd
 
-
-
-def load_data():
-    pickled_data_path = 'data/musixmatch/pickled/'
-    TID_list_train = pickle.load(
-        open(pickled_data_path + 'TID_list_train', 'rb'))
-    MXMID_list_train = pickle.load(
-        open(pickled_data_path + 'MXMID_list_train', 'rb'))
-    X_train = np.load(pickled_data_path + 'X_train.npy')
+from util import MusixMatchData
 
 
 
 def main():
-    pass
+    # load musixmatch data
+    data = MusixMatchData()
+    try:
+        data.load_from_pickle()
+    except:
+        data.write_to_pickle()
+
+
+
+
 
 
 
