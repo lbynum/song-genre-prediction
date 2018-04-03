@@ -1,3 +1,4 @@
+import os
 import csv
 
 import numpy as np
@@ -143,6 +144,7 @@ class MusixMatchData:
         # store as pickle objects
         pickled_data_path = 'data/musixmatch/pickled/'
         print('Writing data to disk at: {}'.format(pickled_data_path))
+        ensure_directory(pickled_data_path)
         np.save(pickled_data_path+'TID', TID)
         np.save(pickled_data_path+'MXMID', MXMID)
         np.save(pickled_data_path+'vocab', vocab)
@@ -178,3 +180,11 @@ class MusixMatchData:
         '''
         X = self.X[self.y == genre_name]
         return X
+
+
+def ensure_directory(file_path):
+    '''Ensure directory exists at file_path.'''
+    dir = os.path.dirname(__file__)
+    dir = os.path.join(dir,file_path)
+    if not os.path.exists(dir):
+        os.makedirs(dir)
