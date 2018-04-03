@@ -182,9 +182,9 @@ class MusixMatchData:
         return X
 
 
-def ensure_directory(file_path):
-    '''Ensure directory exists at file_path.'''
+def ensure_directory(dir_path):
+    '''Ensure directory exists at dir_path.'''
     dir = os.path.dirname(__file__)
-    dir = os.path.join(dir,file_path)
+    dir = os.path.join(dir,dir_path)
     if not os.path.exists(dir):
         os.makedirs(dir)
