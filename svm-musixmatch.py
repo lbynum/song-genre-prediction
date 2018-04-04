@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.model_selection import GridSearchCV
-from sklearn.svm import SVC
+# from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
 from sklearn.dummy import DummyClassifier
 from sklearn.pipeline import Pipeline
 
@@ -22,7 +23,7 @@ def main():
     }
 
     pipeline = Pipeline([
-        ('clf', SVC('linear'))
+        ('clf', LogisticRegression())
     ])
 
 
