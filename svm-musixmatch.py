@@ -35,7 +35,7 @@ def main():
             parameters,
             scoring=metric,
             n_jobs=-2,
-            verbose=1
+            verbose=3
         )
 
         grid_search.fit(data.X, data.y)
