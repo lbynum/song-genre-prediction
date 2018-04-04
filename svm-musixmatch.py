@@ -26,8 +26,11 @@ def main():
         'clf__C': tuple(10.0 ** np.arange(-3, 3))
     }
 
+    # pipeline = Pipeline([
+    #     ('clf', LogisticRegression())
+    # ])
     pipeline = Pipeline([
-        ('clf', LogisticRegression())
+        ('clf', DummyClassifier())
     ])
 
 
