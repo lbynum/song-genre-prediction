@@ -18,7 +18,7 @@ def main():
         )
 
     parameters = {
-        'clf__C': tuple(10 ** np.arange(-3, 3))
+        'clf__C': tuple(10.0 ** np.arange(-3, 3))
     }
 
     pipeline = Pipeline([
