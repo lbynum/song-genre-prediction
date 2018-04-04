@@ -5,7 +5,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.dummy import DummyClassifier
 from sklearn.pipeline import Pipeline
 
-from util import MusixMatchData
+from util import MusixMatchData, stratified_random_sample
 
 
 def main():
@@ -17,6 +17,10 @@ def main():
             X_filename='data/musixmatch/mxm_dataset_train.txt',
             genre_filename='genres.csv'
         )
+
+    data = stratified_random_sample(data,
+                                    sample_proportion=0.1,
+                                    random_state=123)
 
     parameters = {
         'clf__C': tuple(10.0 ** np.arange(-3, 3))

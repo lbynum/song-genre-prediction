@@ -2,6 +2,7 @@ import os
 import csv
 
 import numpy as np
+from sklearn.model_selection import train_test_split
 
 
 class MusixMatchData:
@@ -188,3 +189,42 @@ def ensure_directory(dir_path):
     dir = os.path.join(dir,dir_path)
     if not os.path.exists(dir):
         os.makedirs(dir)
+
+
+def stratified_random_sample(data, sample_proportion, random_state):
+    '''
+    Create stratified random sample of sample_proportion of the data points.
+
+    Parameters
+    --------------------
+        data                -- MusixMatchData object to sample from
+        sample_proportion   -- float, proportion to sample
+        random_state        -- int, random seed
+
+    Returns
+    --------------------
+        sampled_data        -- MusixMatchData object for sampled
+                               observations
+    '''
+    n, _ = data.X.shape
+    index_array = np.arange(n)
+    sample_indices, _ = train_test_split(
+        index_array,
+        stratify=data.y,
+        train_size=sample_proportion,
+        random_state=random_state)
+
+    # select examples from split
+    X = data.X[sample_indices]
+    y = data.y[sample_indices]
+    TID = data.TID[sample_indices]
+    MXMID = data.TID[sample_indices]
+
+    sampled_data = MusixMatchData(
+        X=X,
+        y=y,
+        TID=TID,
+        MXMID=MXMID,
+        vocab=data.vocab)
+
+    return sampled_data
