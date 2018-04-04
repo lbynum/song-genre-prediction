@@ -23,7 +23,8 @@ def main():
                                     random_state=123)
 
     parameters = {
-        'clf__C': tuple(10.0 ** np.arange(-3, 3))
+        'clf__strategy': ('stratified', 'most_frequent', 'prior', 'uniform', 'constant')
+        # 'clf__C': tuple(10.0 ** np.arange(-3, 3))
     }
 
     # pipeline = Pipeline([
