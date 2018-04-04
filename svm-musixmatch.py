@@ -35,7 +35,7 @@ def main():
 
 
     # grid search with respect to different metrics and print results
-    scoring = ['accuracy', 'precision', 'f1', 'recall', 'roc_auc']
+    scoring = ['accuracy']#, 'precision', 'f1', 'recall', 'roc_auc']
     for metric in scoring:
         grid_search = GridSearchCV(
             pipeline,
