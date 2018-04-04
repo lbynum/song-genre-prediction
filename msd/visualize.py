@@ -42,19 +42,16 @@ sys.path.append( path )
 # imports specific to the MSD
 import hdf5_getters as GETTERS
 
-# we define this very useful function to iterate the files
-def avg_feature_all_files(basedir, genre_dict, ext='.h5'):
+def get_all_examples(basedir, genre_dict, ext='.h5'):
     """
-    From a base directory, go through all subdirectories,
-    find all files with the given extension, apply the
-    given function 'func' to all of them.
-    If no 'func' is passed, we do nothing except counting.
+    From a base directory, goes through all subdirectories,
+    and grabs all songs and their features and puts them into a pandas dataframe 
     INPUT
-       basedir  - base directory of the dataset
-       func     - function to apply to all filenames
-       ext      - extension, .h5 by default
+       basedir    - base directory of the dataset
+       genre_dict - a dictionary mapping track id to genre based tagraum dataset
+       ext        - extension, .h5 by default
     RETURN
-       number of files
+       dataframe containing all song examples
     """
     features_vs_genre = pd.DataFrame()
 
@@ -69,20 +66,24 @@ def avg_feature_all_files(basedir, genre_dict, ext='.h5'):
             song_id = GETTERS.get_track_id(h5).decode('utf-8')
             if (song_id in genre_dict):
                 genre = genre_dict[song_id]
-                danceability = GETTERS.get_danceability(h5)
+                year = GETTERS.get_year(h5)
                 duration = GETTERS.get_duration(h5)
                 end_of_fade_in = GETTERS.get_end_of_fade_in(h5)
-                energy = GETTERS.get_energy(h5)
                 loudness = GETTERS.get_loudness(h5)
                 song_hotttnesss = GETTERS.get_song_hotttnesss(h5)
                 tempo = GETTERS.get_tempo(h5)
-                example = pd.DataFrame(data=[(song_id, genre, danceability, duration, 
-                                              end_of_fade_in, energy, loudness, 
+                key = GETTERS.get_key(h5)
+                mode = GETTERS.get_mode(h5)
+                time_signature = GETTERS.get_time_signature(h5)
+                example = pd.DataFrame(data=[(song_id, genre, year, key, mode, 
+                                              time_signature, duration, 
+                                              end_of_fade_in, loudness, 
                                               song_hotttnesss, tempo)], 
-                                       columns=['song_id', 'genre', 'danceability', 
+                                       columns=['song_id', 'genre', 'year', 
+                                                'key', 'mode', 'time_signature', 
                                                 'duration', 'end_of_fade_in', 
-                                                'energy', 'loudness', 
-                                                'song_hotttnesss', 'tempo'])
+                                                'loudness','song_hotttnesss', 
+                                                'tempo'])
                 features_vs_genre = features_vs_genre.append(example)
             h5.close()
 
@@ -97,14 +98,13 @@ def main():
     # Create the dictionary of songs to genres.
     genre_dict = {}
     for col in range(genres_data_frame.shape[0]):
-        genre_dict[genres_data_frame['song_id'][col]] = genres_data_frame['genre'][col]
-        # print(genres_data_frame['song_id'][col], genres_data_frame['genre'][col])
+        genre_dict[genres_data_frame['song_id'][col]] = 
+        genres_data_frame['genre'][col]
 
-    features_vs_genre = avg_feature_all_files(msd_subset_data_path, genre_dict)
-    
     # write csv file
+    features_vs_genre = get_all_examples(msd_subset_data_path, genre_dict)
     features_vs_genre.to_csv('./features_vs_genre.csv', index=False)
-
+    
         
 
 if __name__ == "__main__":
