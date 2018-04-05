@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn.model_selection import GridSearchCV
-# from sklearn.svm import SVC
+from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.dummy import DummyClassifier
 from sklearn.pipeline import Pipeline
@@ -23,16 +23,16 @@ def main():
                                     random_state=123)
 
     parameters = {
-        'clf__strategy': ('stratified', 'most_frequent', 'prior', 'uniform')
-        # 'clf__C': tuple(10.0 ** np.arange(-3, 3))
+        # 'clf__strategy': ('stratified', 'most_frequent', 'prior', 'uniform')
+        'clf__C': tuple(10.0 ** np.arange(-3, 3))
     }
 
-    # pipeline = Pipeline([
-    #     ('clf', LogisticRegression())
-    # ])
     pipeline = Pipeline([
-        ('clf', DummyClassifier())
+        ('clf', SVC())
     ])
+    # pipeline = Pipeline([
+    #     ('clf', DummyClassifier())
+    # ])
 
 
     # grid search with respect to different metrics and print results
