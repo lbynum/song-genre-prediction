@@ -5,6 +5,8 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.pipeline import Pipeline
+from sklearn.dummy import DummyClassifier
+from sklearn.model_selection import train_test_split
 
 class MSDData:
     '''
@@ -58,8 +60,18 @@ def main():
     y = data.y
     n, d = X.shape
 
+    index_array = np.arange(n)
+    sample_indices, _ = train_test_split(index_array, stratify=data.y,
+                                         train_size=0.1, random_state=123)
+
+    # select examples from split
+    X_train = data.X[sample_indices]
+    y_train = data.y[sample_indices]
+    TID_train = data.TID[sample_indices]
+
     parameters = {
         'clf__max_features': tuple(np.arange(1, d+1))
+        # 'clf__strategy': ('stratified', 'most_frequent', 'prior', 'uniform')
     }
 
     pipeline = Pipeline([
@@ -67,7 +79,7 @@ def main():
     ])
 
     # grid search with respect to different metrics and print results
-    scoring = ['accuracy', 'precision', 'f1', 'recall', 'roc_auc']
+    scoring = ['accuracy']#, 'precision', 'f1', 'recall', 'roc_auc']
     for metric in scoring:
         grid_search = GridSearchCV(
             pipeline,
