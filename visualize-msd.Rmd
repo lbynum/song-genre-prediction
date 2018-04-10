@@ -16,11 +16,18 @@ library(GGally)
 library(dplyr)
 ```
 
-```{r}
+```{r, cache=TRUE}
 # load csv
 csv_path = 'msd/features_vs_genre.csv'
 df = read_csv(csv_path)
-head(df)
+```
+
+```{r}
+str(df)
+```
+
+```{r}
+summary(df)
 ```
 
 ```{r}
