@@ -183,7 +183,7 @@ class MusixMatchData:
 
         # set label encoder
         label_encoder = LabelEncoder()
-        label_encoder.fit(y.ravel())
+        label_encoder.fit(self.y.ravel())
         self.label_encoder = label_encoder
 
         return self

@@ -48,8 +48,8 @@ def main():
     print(len(data.X))
 
     # plot the classes
-    # plt.hist(data.y)
-    # plt.show()
+    plt.hist(data.y)
+    plt.show()
 
     pipelines_dict = {
         'DummyClassifier':
@@ -110,7 +110,7 @@ def main():
                 parameters,
                 scoring=metric,
                 n_jobs=-2,
-                verbose=2
+                verbose=1
             )
             grid_search.fit(data.X, data.y)
 
