@@ -143,9 +143,9 @@ def main():
     ############################################################################
     # explore important features
     ############################################################################
-    best_model = best_estimators['RandomForestClassifier']['accuracy']
-
-    print(best_model.)
+    # best_model = best_estimators['RandomForestClassifier']['accuracy']
+    #
+    # print(best_model.)
 
     ############################################################################
     # predict on test data
