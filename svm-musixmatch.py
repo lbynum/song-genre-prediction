@@ -96,8 +96,8 @@ def main():
     scoring_dict = {
         'accuracy': accuracy,
         'precision': precision,
-        # 'f1': f1,
-        # 'recall': recall,
+        'f1': f1,
+        'recall': recall,
         # 'roc_auc': roc_auc,
     }
 
@@ -143,9 +143,9 @@ def main():
     ############################################################################
     # explore important features
     ############################################################################
-    # best_model = best_estimators['RandomForestClassifier']['accuracy']
-    #
-    # print(best_model.)
+    best_model = best_estimators['RandomForestClassifier']['accuracy']
+
+    print(best_model.)
 
     ############################################################################
     # predict on test data
