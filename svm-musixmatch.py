@@ -32,9 +32,9 @@ def main():
             suffix='train'
         )
 
-    data = stratified_random_sample(data,
-                                    sample_proportion=0.1,
-                                    random_state=123)
+    # data = stratified_random_sample(data,
+    #                                 sample_proportion=0.1,
+    #                                 random_state=123)
 
     # select only two genres
     genre_list = ['Rap', 'Pop']
@@ -110,7 +110,7 @@ def main():
                 parameters,
                 scoring=metric,
                 n_jobs=-2,
-                verbose=1
+                verbose=0
             )
             grid_search.fit(data.X, data.y)
 
