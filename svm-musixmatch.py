@@ -37,8 +37,8 @@ def main():
                                     random_state=123)
 
     # select only two genres
-    genre_list = ['Rap', 'Blues']
-    data = select_genres(data, genre_list)
+    # genre_list = ['Rap', 'Blues']
+    # data = select_genres(data, genre_list)
 
     # encode labels to get rid of strings
     data.encode_labels()
@@ -98,7 +98,7 @@ def main():
         'precision': precision,
         'f1': f1,
         'recall': recall,
-        'roc_auc': roc_auc,
+        # 'roc_auc': roc_auc,
     }
 
     # loop through each classifier and each metric to get CV performance
@@ -109,8 +109,8 @@ def main():
                 pipeline,
                 parameters,
                 scoring=metric,
-                n_jobs=-2,
-                verbose=3
+                n_jobs=1,
+                verbose=2
             )
             grid_search.fit(data.X, data.y)
 
@@ -141,7 +141,7 @@ def main():
             suffix='test'
         )
 
-    data = select_genres(data, genre_list)
+    # data = select_genres(data, genre_list)
 
     data.encode_labels()
 
