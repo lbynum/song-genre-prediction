@@ -109,7 +109,7 @@ def main():
                 pipeline,
                 parameters,
                 scoring=metric,
-                n_jobs=1,
+                n_jobs=-2,
                 verbose=2
             )
             grid_search.fit(data.X, data.y)
