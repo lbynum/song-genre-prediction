@@ -16,11 +16,33 @@ library(GGally)
 library(dplyr)
 ```
 
+# Genres Before Joining
+
+```{r, cache=TRUE}
+genres = read.csv('genres.csv')
+```
+
+```{r}
+head(genres)
+```
+
+```{r}
+ggplot(genres, aes(genre)) + geom_histogram(stat='count') + labs(title='Distribution of Genres Before Joining', x='Genre',y='Count')
+```
+
+# Genres After Joining
+
 ```{r, cache=TRUE}
 # load csv
 csv_path = 'msd/features_vs_genre.csv'
 df = read_csv(csv_path)
 ```
+
+```{r}
+ggplot(df, aes(genre)) + geom_histogram(stat='count') + labs(title='Distribution of Genres After Joining', x='Genre',y='Count')
+```
+
+# MSD Features
 
 ```{r}
 str(df)

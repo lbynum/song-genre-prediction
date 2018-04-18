@@ -52,11 +52,15 @@ def main():
     # load musixmatch data
     data = MusixMatchData()
     try:
-        data.load_from_pickle()
+        data.load_from_pickle(pickled_data_path='data/musixmatch/pickled/',
+                              suffix='train')
     except:
         data.write_to_pickle(
             X_filename='data/musixmatch/mxm_dataset_train.txt',
-            genre_filename='genres.csv')
+            genre_filename='genres.csv',
+            pickled_data_path='data/musixmatch/pickled/',
+            suffix='train'
+        )
 
     word_counts = compute_total_occurrences(data.X, data.vocab)
 

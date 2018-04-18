@@ -3,6 +3,7 @@ import csv
 
 import numpy as np
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
 
 
 class MusixMatchData:
@@ -29,16 +30,25 @@ class MusixMatchData:
         self.TID = TID
         self.MXMID = MXMID
         self.vocab = vocab
+        if y is not None:
+            label_encoder = LabelEncoder()
+            label_encoder.fit(y.ravel())
+            self.label_encoder = label_encoder
+        else:
+            self.label_encoder = None
 
-
-    def write_to_pickle(self, X_filename, genre_filename):
+    def write_to_pickle(self, X_filename, genre_filename, pickled_data_path,
+                        suffix):
         '''
         Load text files into X, TID, and MXMID and store as pickled objects.
 
         Parameters
         --------------------
-            X_filename      -- string, filename of predictors
-            genre_filename  -- string, filename of genre file
+            X_filename          -- str, filename of predictors
+            genre_filename      -- str, filename of genre file
+            pickled_data_path   -- str, directory path at which to store files
+            suffix              -- str, suffix to add to end of files before
+                                   writing to pickled_data_path
         '''
         # define dimensions (hard coded for now)
         # n = 73658 # num observations in genres.csv INT mxm_dataset_train
@@ -143,29 +153,30 @@ class MusixMatchData:
         self.vocab = vocab
 
         # store as pickle objects
-        pickled_data_path = 'data/musixmatch/pickled/'
         print('Writing data to disk at: {}'.format(pickled_data_path))
         ensure_directory(pickled_data_path)
-        np.save(pickled_data_path+'TID', TID)
-        np.save(pickled_data_path+'MXMID', MXMID)
-        np.save(pickled_data_path+'vocab', vocab)
-        np.save(pickled_data_path+'X', X)
-        np.save(pickled_data_path+'y', y)
+        np.save(pickled_data_path+'TID'+'_'+suffix, TID)
+        np.save(pickled_data_path+'MXMID'+'_'+suffix, MXMID)
+        np.save(pickled_data_path+'vocab'+'_'+suffix, vocab)
+        np.save(pickled_data_path+'X'+'_'+suffix, X)
+        np.save(pickled_data_path+'y'+'_'+suffix, y)
+
+        return self
 
 
-    def load_from_pickle(self):
+    def load_from_pickle(self, pickled_data_path, suffix):
         '''
         Load pickled files into X, y, TID, MXMID, and vocab.
         '''
-        pickled_data_path = 'data/musixmatch/pickled/'
         print('Loading data from: {}'.format(pickled_data_path))
-        self.TID = np.load(pickled_data_path+'TID.npy')
-        self.MXMID = np.load(pickled_data_path+'MXMID.npy')
-        self.X = np.load(pickled_data_path+'X.npy')
-        self.y = np.load(pickled_data_path+'y.npy')
+        self.TID = np.load(pickled_data_path+'TID'+'_'+suffix+'.npy')
+        self.MXMID = np.load(pickled_data_path+'MXMID'+'_'+suffix+'.npy')
+        self.X = np.load(pickled_data_path+'X'+'_'+suffix+'.npy')
+        self.y = np.load(pickled_data_path+'y'+'_'+suffix+'.npy')
         # self.X = mmread(pickled_data_path + 'X.mtx')
-        self.vocab = np.load(pickled_data_path+'vocab.npy')
+        self.vocab = np.load(pickled_data_path+'vocab'+'_'+suffix+'.npy')
 
+        return self
 
     def get_one_genre(self, genre_name):
         '''
@@ -182,6 +193,16 @@ class MusixMatchData:
         X = self.X[self.y == genre_name]
         return X
 
+    def encode_labels(self):
+        '''Encode labels using sklearn.LabelEncoder'''
+        self.y = self.label_encoder.transform(self.y.ravel())
+        return self
+
+    def decode_labels(self):
+        '''Decode labels using sklearn.LabelEncoder'''
+        self.y = self.label_encoder.inverse_transform(self.y.ravel())
+        return self
+
 
 def ensure_directory(dir_path):
     '''Ensure directory exists at dir_path.'''
@@ -189,6 +210,8 @@ def ensure_directory(dir_path):
     dir = os.path.join(dir,dir_path)
     if not os.path.exists(dir):
         os.makedirs(dir)
+
+    return True
 
 
 def stratified_random_sample(data, sample_proportion, random_state):
@@ -213,6 +236,40 @@ def stratified_random_sample(data, sample_proportion, random_state):
         stratify=data.y,
         train_size=sample_proportion,
         random_state=random_state)
+
+    # select examples from split
+    X = data.X[sample_indices]
+    y = data.y[sample_indices]
+    TID = data.TID[sample_indices]
+    MXMID = data.TID[sample_indices]
+
+    sampled_data = MusixMatchData(
+        X=X,
+        y=y,
+        TID=TID,
+        MXMID=MXMID,
+        vocab=data.vocab)
+
+    return sampled_data
+
+
+def select_genres(data, genre_list):
+    '''
+    Select from data all points with label in genre_list.
+
+
+    Parameters
+    --------------------
+        data        -- MusixMatchData object to sample from
+        genre_list  -- list of str, genres to select
+
+    Returns
+    --------------------
+        sampled_data        -- MusixMatchData object for sampled
+                               observations
+    '''
+    # get indices to sample
+    sample_indices = [index for index,genre in enumerate(data.y) if genre in genre_list]
 
     # select examples from split
     X = data.X[sample_indices]
