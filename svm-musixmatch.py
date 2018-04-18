@@ -37,8 +37,8 @@ def main():
                                     random_state=123)
 
     # select only two genres
-    # genre_list = ['Rap', 'Blues']
-    # data = select_genres(data, genre_list)
+    genre_list = ['Rap', 'Pop']
+    data = select_genres(data, genre_list)
 
     # encode labels to get rid of strings
     data.encode_labels()
@@ -141,8 +141,8 @@ def main():
             suffix='test'
         )
 
-    # data = select_genres(data, genre_list)
-
+    # select the same genres
+    data = select_genres(data, genre_list)
     data.encode_labels()
 
     # predict using each best estimator (one for each metric)
