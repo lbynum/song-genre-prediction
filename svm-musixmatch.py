@@ -36,15 +36,18 @@ def main():
                                     sample_proportion=0.1,
                                     random_state=123)
 
+    # select only two genres
     genre_list = ['Rap', 'Blues']
-
     data = select_genres(data, genre_list)
 
+    # encode labels to get rid of strings
     data.encode_labels()
 
+    # print quick summary statistics
     print(Counter(data.y))
     print(len(data.X))
 
+    # plot the classes
     # plt.hist(data.y)
     # plt.show()
 
@@ -84,8 +87,7 @@ def main():
 
 
     # grid search with respect to different metrics and print results
-
-    # define scorers for multiclass classification
+    # define scorers for multi-class classification
     accuracy = make_scorer(accuracy_score)
     precision = make_scorer(precision_score, average='weighted')
     f1 = make_scorer(f1_score, average='weighted')
@@ -159,7 +161,6 @@ def main():
             print('\t\t' + str(matrix).replace('\n', '\n\t\t'))
             scorer = scoring_dict[metric_name]
             score = scorer(estimator, data.X, data.y)
-            # performance = performance_func(y_true=y_true, y_pred=y_pred)
             print('\t\t{}: {}'.format(metric_name, score))
 
 if __name__ == '__main__':
