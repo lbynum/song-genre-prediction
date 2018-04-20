@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from sklearn import metrics
+from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
@@ -29,16 +30,21 @@ class MSDData:
         self.y = y
         self.TID = TID
 
-    def load_data(self):
+    def load_data(self, genre1=None, genre2=None):
         '''
             Load csv file into X, y, TID -- removes any examples with missing 
             features
 
         '''
-        # grab songs from csv files, remove any with missing features
+        # grab songs from csv files, remove any with missing year or any feature with nan
         msd_csv_path = 'features_vs_genre.csv'
         df = pd.read_csv(msd_csv_path)
         df = df[df.year != 0].dropna(axis=0, how='any')
+
+        if(genre1 != None):
+            # Only grab examples of specified genres
+            df = df.loc[df['genre'].isin([genre1, genre2])]
+            print(df)
         TID = df.as_matrix(columns=[df.columns[0]])
         X = df.as_matrix(columns=df.columns[2:])
         y = df.as_matrix(columns=[df.columns[1]])
@@ -52,9 +58,14 @@ class MSDData:
         self.y = y
         self.TID = TID
 
+        return self
+
 def main():
     data = MSDData()
     data.load_data()
+
+    # Compare two genres against each other
+    # data.load_data('Blues', 'Rap')
 
     X = data.X
     y = data.y
@@ -62,7 +73,7 @@ def main():
 
     index_array = np.arange(n)
     sample_indices, _ = train_test_split(index_array, stratify=data.y,
-                                         train_size=0.1, random_state=123)
+                                         train_size=0.8, random_state=123)
 
     # select examples from split
     X_train = data.X[sample_indices]
@@ -70,7 +81,12 @@ def main():
     TID_train = data.TID[sample_indices]
 
     parameters = {
-        'clf__max_features': tuple(np.arange(1, d+1))
+        'clf__max_features': tuple(np.arange(1, d+1)),
+        'clf__n_estimators': (10, 50, 100),
+        'clf__criterion': ('gini', 'entropy'),
+        'clf__max_depth': (5, 10, 20)
+        # 'clf__C': 10**np.arange(-3, 3, dtype=float),
+        # 'clf__class_weight': ('balanced', None)
         # 'clf__strategy': ('stratified', 'most_frequent', 'prior', 'uniform')
     }
 
@@ -86,10 +102,11 @@ def main():
             parameters,
             scoring=metric,
             n_jobs=-2,
-            verbose=3
+            verbose=3,
+            return_train_score=True
         )
 
-        grid_search.fit(data.X, data.y)
+        grid_search.fit(X_train, y_train)
 
         # print params for best fit
         print("Best {}: {}".format(metric, grid_search.best_score_))
@@ -97,6 +114,8 @@ def main():
         best_parameters = grid_search.best_estimator_.get_params()
         for param_name in sorted(parameters.keys()):
             print("\t%s: %r" % (param_name, best_parameters[param_name]))
+
+        print(grid_search.cv_results_)
 
 if __name__ == '__main__':
     main()
