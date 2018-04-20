@@ -152,6 +152,11 @@ class MusixMatchData:
         self.MXMID = MXMID
         self.vocab = vocab
 
+        # set label encoder
+        label_encoder = LabelEncoder()
+        label_encoder.fit(y.ravel())
+        self.label_encoder = label_encoder
+
         # store as pickle objects
         print('Writing data to disk at: {}'.format(pickled_data_path))
         ensure_directory(pickled_data_path)
@@ -175,6 +180,11 @@ class MusixMatchData:
         self.y = np.load(pickled_data_path+'y'+'_'+suffix+'.npy')
         # self.X = mmread(pickled_data_path + 'X.mtx')
         self.vocab = np.load(pickled_data_path+'vocab'+'_'+suffix+'.npy')
+
+        # set label encoder
+        label_encoder = LabelEncoder()
+        label_encoder.fit(self.y.ravel())
+        self.label_encoder = label_encoder
 
         return self
 

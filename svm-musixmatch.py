@@ -32,20 +32,20 @@ def main():
             suffix='train'
         )
 
-    data = stratified_random_sample(data,
-                                    sample_proportion=0.1,
-                                    random_state=123)
+    # data = stratified_random_sample(data,
+    #                                 sample_proportion=0.1,
+    #                                 random_state=123)
 
     # select only two genres
-    # genre_list = ['Rap', 'Blues']
-    # data = select_genres(data, genre_list)
+    genre_list = ['Rap', 'Pop']
+    data = select_genres(data, genre_list)
 
     # encode labels to get rid of strings
     data.encode_labels()
 
     # print quick summary statistics
-    print(Counter(data.y))
-    print(len(data.X))
+    # print(Counter(data.y))
+    # print(len(data.X))
 
     # plot the classes
     # plt.hist(data.y)
@@ -60,10 +60,10 @@ def main():
             Pipeline([
                 ('clf', RandomForestClassifier())
             ]),
-        # 'LogisticRegression':
-        #     Pipeline([
-        #         ('clf', LogisticRegression())
-        #     ]),
+        'LogisticRegression':
+            Pipeline([
+                ('clf', LogisticRegression())
+            ]),
     }
 
     parameters_dict = {
@@ -74,13 +74,13 @@ def main():
             },
         'RandomForestClassifier':
             { # RandomForestClassifier
-                'clf__n_estimators': (10, 50, 100)
+                'clf__n_estimators': (100,)
             },
-        # 'LogisticRegression':
-        #     { # LogisticRegression
-        #         'clf__C': tuple(10.0 ** np.arange(-3, 3)),
-        #         'clf__class_weight': ('balanced', None)
-        #     },
+        'LogisticRegression':
+            { # LogisticRegression
+                'clf__C': (1,),#tuple(10.0 ** np.arange(-3, 3)),
+                'clf__class_weight': ('balanced', None)
+            },
     }
 
     best_estimators = defaultdict(dict)
@@ -101,16 +101,29 @@ def main():
         # 'roc_auc': roc_auc,
     }
 
+    print(
+    '''
+    ############################################################################
+    # Grid Search CV Performance
+    ############################################################################
+    '''
+    )
+
     # loop through each classifier and each metric to get CV performance
     for clf_name, pipeline in pipelines_dict.items():
         parameters = parameters_dict[clf_name]
         for metric_name, metric in scoring_dict.items():
+            if (clf_name == 'DummyClassifier'
+                and metric_name in ['f1', 'precision', 'recall']):
+                # skip ill-defined metrics
+                continue
+
             grid_search = GridSearchCV(
                 pipeline,
                 parameters,
                 scoring=metric,
-                n_jobs=1,
-                verbose=2
+                n_jobs=-2,
+                verbose=0
             )
             grid_search.fit(data.X, data.y)
 
@@ -119,12 +132,20 @@ def main():
             best_estimators[clf_name][metric_name] = best_estimator
 
             # print params for best fit
-            print("\tBest {}: {}".format(metric, grid_search.best_score_))
-            print("\tBest parameters set:")
+            print("\tBest {} with {}: {}".format(clf_name,
+                                            metric,
+                                            grid_search.best_score_))
+            print("\t\tBest parameters set:")
             best_parameters = best_estimator.get_params()
             for param_name in sorted(parameters.keys()):
-                print("\t\t%s: %r" % (param_name, best_parameters[param_name]))
+                print("\t\t\t%s: %r" % (param_name, best_parameters[param_name]))
 
+    ############################################################################
+    # explore important features
+    ############################################################################
+    # best_model = best_estimators['RandomForestClassifier']['accuracy']
+    #
+    # print(best_model.)
 
     ############################################################################
     # predict on test data
@@ -141,15 +162,28 @@ def main():
             suffix='test'
         )
 
-    # data = select_genres(data, genre_list)
-
+    # select the same genres
+    data = select_genres(data, genre_list)
     data.encode_labels()
+
+    print(
+    '''
+    ############################################################################
+    # Test Performance
+    ############################################################################
+    '''
+    )
 
     # predict using each best estimator (one for each metric)
     for clf_name in best_estimators.keys():
-        print('\nClassifier: {}'.format(clf_name))
+        print('\n\tClassifier: {}'.format(clf_name))
         entry = best_estimators[clf_name]
         for metric_name, estimator in entry.items():
+            if (clf_name == 'DummyClassifier'
+                and metric_name in ['f1', 'precision', 'recall']):
+                # skip ill-defined metrics
+                continue
+
             y_pred = estimator.predict(data.X)
             y_true = data.y
             matrix = confusion_matrix(
@@ -157,7 +191,7 @@ def main():
                 y_pred=y_pred
             )
             # print confusion matrix and score
-            print('\tOptimal {} Performance:'.format(metric_name))
+            print('\tBest Estimator Performance -- {}:'.format(metric_name))
             print('\t\t' + str(matrix).replace('\n', '\n\t\t'))
             scorer = scoring_dict[metric_name]
             score = scorer(estimator, data.X, data.y)
