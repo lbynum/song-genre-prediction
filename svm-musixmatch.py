@@ -20,28 +20,29 @@ def main():
     ############################################################################
     # train models
     ############################################################################
-    data = MusixMatchData()
+    data_train = MusixMatchData()
     try:
-        data.load_from_pickle(pickled_data_path='data/musixmatch/pickled/',
+        data_train.load_from_pickle(pickled_data_path='data/musixmatch/pickled/',
                               suffix='train')
     except:
-        data.write_to_pickle(
+        data_train.write_to_pickle(
             X_filename='data/musixmatch/mxm_dataset_train.txt',
             genre_filename='genres.csv',
             pickled_data_path='data/musixmatch/pickled/',
             suffix='train'
         )
 
-    # data = stratified_random_sample(data,
-    #                                 sample_proportion=0.1,
-    #                                 random_state=123)
+    data_train = stratified_random_sample(
+            data_train,
+            sample_proportion=0.1,
+            random_state=123)
 
     # select only two genres
     genre_list = ['Rap', 'Pop']
-    data = select_genres(data, genre_list)
+    data_train = select_genres(data_train, genre_list)
 
     # encode labels to get rid of strings
-    data.encode_labels()
+    data_train.encode_labels()
 
     # print quick summary statistics
     # print(Counter(data.y))
@@ -60,26 +61,35 @@ def main():
             Pipeline([
                 ('clf', RandomForestClassifier())
             ]),
-        'LogisticRegression':
+        'linear_SVM':
             Pipeline([
-                ('clf', LogisticRegression())
+                ('clf', SVC(kernel='linear'))
             ]),
+        # 'LogisticRegression':
+        #     Pipeline([
+        #         ('clf', LogisticRegression())
+        #     ]),
     }
 
     parameters_dict = {
         'DummyClassifier':
-            { # DummyClassifier
+            {
                 'clf__strategy': ('most_frequent',)
                 #'('stratified', 'most_frequent', 'prior', 'uniform')
             },
         'RandomForestClassifier':
-            { # RandomForestClassifier
-                'clf__n_estimators': (100,)
+            {
+                'clf__n_estimators': (10,)
             },
         'LogisticRegression':
-            { # LogisticRegression
+            {
                 'clf__C': (1,),#tuple(10.0 ** np.arange(-3, 3)),
                 'clf__class_weight': ('balanced', None)
+            },
+        'linear_SVM':
+            {
+                'clf__C': (1,),  # tuple(10.0 ** np.arange(-3, 3)),
+                # 'clf__class_weight': ('balanced', None)
             },
     }
 
@@ -98,7 +108,7 @@ def main():
         'precision': precision,
         'f1': f1,
         'recall': recall,
-        # 'roc_auc': roc_auc,
+        'roc_auc': roc_auc,
     }
 
     print(
@@ -125,7 +135,7 @@ def main():
                 n_jobs=-2,
                 verbose=0
             )
-            grid_search.fit(data.X, data.y)
+            grid_search.fit(data_train.X, data_train.y)
 
             # store best estimator in dict
             best_estimator = grid_search.best_estimator_
@@ -140,22 +150,16 @@ def main():
             for param_name in sorted(parameters.keys()):
                 print("\t\t\t%s: %r" % (param_name, best_parameters[param_name]))
 
-    ############################################################################
-    # explore important features
-    ############################################################################
-    # best_model = best_estimators['RandomForestClassifier']['accuracy']
-    #
-    # print(best_model.)
 
     ############################################################################
     # predict on test data
     ############################################################################
-    data = MusixMatchData()
+    data_test = MusixMatchData()
     try:
-        data.load_from_pickle(pickled_data_path='data/musixmatch/pickled/',
+        data_test.load_from_pickle(pickled_data_path='data/musixmatch/pickled/',
                               suffix='test')
     except:
-        data.write_to_pickle(
+        data_test.write_to_pickle(
             X_filename='data/musixmatch/mxm_dataset_test.txt',
             genre_filename='genres.csv',
             pickled_data_path='data/musixmatch/pickled/',
@@ -163,8 +167,8 @@ def main():
         )
 
     # select the same genres
-    data = select_genres(data, genre_list)
-    data.encode_labels()
+    data_test = select_genres(data_test, genre_list)
+    data_test.encode_labels()
 
     print(
     '''
@@ -184,8 +188,8 @@ def main():
                 # skip ill-defined metrics
                 continue
 
-            y_pred = estimator.predict(data.X)
-            y_true = data.y
+            y_pred = estimator.predict(data_test.X)
+            y_true = data_test.y
             matrix = confusion_matrix(
                 y_true=y_true,
                 y_pred=y_pred
@@ -194,8 +198,63 @@ def main():
             print('\tBest Estimator Performance -- {}:'.format(metric_name))
             print('\t\t' + str(matrix).replace('\n', '\n\t\t'))
             scorer = scoring_dict[metric_name]
-            score = scorer(estimator, data.X, data.y)
+            score = scorer(estimator, data_test.X, data_test.y)
             print('\t\t{}: {}'.format(metric_name, score))
+
+    ############################################################################
+    # explore important features
+    ############################################################################
+    # RF
+    print(
+    '''
+    ############################################################################
+    # Random Forest Feature Importance
+    ############################################################################
+    '''
+    )
+    best_pipeline = best_estimators['RandomForestClassifier']['accuracy']
+
+    importance_scores = best_pipeline._final_estimator.feature_importances_
+
+    feature_importances = list(zip(data_train.vocab, importance_scores))
+    feature_importances = sorted(feature_importances,
+                                 key=lambda pair: pair[1],
+                                 reverse=True)
+    num_features = 20
+    # print top 20
+    print('\tTop {} Features for {} vs {}'.format(num_features,
+                                                  genre_list[0],
+                                                  genre_list[1]))
+    for pair in feature_importances[:num_features]:
+        print('\t\t{}'.format(pair))
+
+    # SVM
+    print(
+    '''
+    ############################################################################
+    # Linear SVM Feature Importance
+    ############################################################################
+    '''
+    )
+    best_pipeline = best_estimators['linear_SVM']['accuracy']
+
+    importance_scores = list(best_pipeline._final_estimator.coef_[0])
+
+    feature_importances = list(zip(data_train.vocab, importance_scores))
+    feature_importances = sorted(feature_importances,
+                                 key=lambda pair: pair[1],
+                                 reverse=True)
+    num_features = 20
+    # print top 20
+    print('\tTop {} Features for {}'.format(num_features, genre_list[1]))
+    for pair in feature_importances[:num_features]:
+        print('\t\t{}'.format(pair))
+
+    # print bottom 20
+    print('\tTop {} Features for {}'.format(num_features, genre_list[0]))
+    for pair in feature_importances[-num_features:]:
+        print('\t\t{}'.format(pair))
+
 
 if __name__ == '__main__':
     main()

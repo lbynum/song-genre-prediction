@@ -91,7 +91,8 @@ def main():
                   title='Most popular words without stopwords -- All genres')
 
 
-    genres = np.unique(data.y)
+    # genres = np.unique(data.y)
+    genres = ['Rap', 'Pop']
     for genre in genres:
         X = data.get_one_genre(genre)
         # most occurring
