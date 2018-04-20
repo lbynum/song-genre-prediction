@@ -73,17 +73,25 @@ def get_all_examples(basedir, genre_dict, ext='.h5'):
                 song_hotttnesss = GETTERS.get_song_hotttnesss(h5)
                 tempo = GETTERS.get_tempo(h5)
                 key = GETTERS.get_key(h5)
+                key_confidence = GETTERS.get_key_confidence(h5)
                 mode = GETTERS.get_mode(h5)
+                mode_confidence = GETTERS.get_mode_confidence(h5)
                 time_signature = GETTERS.get_time_signature(h5)
-                example = pd.DataFrame(data=[(song_id, genre, year, key, mode, 
-                                              time_signature, duration, 
+                time_signature_confidence = GETTERS.get_time_signature_confidence(h5)
+                # length of sections_start array gives us number of start
+                num_sections = len(GETTERS.get_sections_start(h5))
+                num_segments = len(GETTERs.get_segments_confidence(h5))
+                example = pd.DataFrame(data=[(song_id, genre, year, key, key_confidence, mode,
+                                              mode_confidence, 
+                                              time_signature, time_signature_confidence, duration, 
                                               end_of_fade_in, loudness, 
-                                              song_hotttnesss, tempo)], 
+                                              song_hotttnesss, tempo, num_sections)], 
                                        columns=['song_id', 'genre', 'year', 
-                                                'key', 'mode', 'time_signature', 
+                                                'key', 'key_confidence', 'mode', 'mode_confidence', 'time_signature',
+                                                'time_signature_confidence', 
                                                 'duration', 'end_of_fade_in', 
                                                 'loudness','song_hotttnesss', 
-                                                'tempo'])
+                                                'tempo', 'num_segments'])
                 features_vs_genre = features_vs_genre.append(example)
             h5.close()
 
@@ -98,8 +106,7 @@ def main():
     # Create the dictionary of songs to genres.
     genre_dict = {}
     for col in range(genres_data_frame.shape[0]):
-        genre_dict[genres_data_frame['song_id'][col]] = 
-        genres_data_frame['genre'][col]
+        genre_dict[genres_data_frame['song_id'][col]] = genres_data_frame['genre'][col]
 
     # write csv file
     features_vs_genre = get_all_examples(msd_subset_data_path, genre_dict)
