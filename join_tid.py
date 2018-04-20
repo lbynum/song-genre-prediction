@@ -8,7 +8,7 @@ msd_ids = set(msd_df.iloc[0:,1])
 
 intersection = mxm_ids.intersection(msd_ids)
 
-intersection_df = msd_df[[TID in intersection for TID in list(msd_df.iloc[:,0])]]
+intersection_df = pd.DataFrame(list(intersection))
 
 intersection_df.to_csv('joined_tid.csv')
 
