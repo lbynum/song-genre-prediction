@@ -22,6 +22,7 @@ def main():
     ############################################################################
     data_train = MusixMatchData()
     try:
+        assert False
         data_train.load_from_pickle(pickled_data_path='data/musixmatch/pickled/',
                               suffix='train')
     except:
