@@ -9,56 +9,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.dummy import DummyClassifier
 from sklearn.model_selection import train_test_split
 
-class MSDData:
-    '''
-    Class for storing msd data.
-    '''
-    def __init__(self, X=None, y=None, TID=None):
-        '''
-        Data class.
+from util import MSDData
 
-        Attributes
-        --------------------
-        X       -- numpy array of shape (n,d), features
-        y       -- numpy array of shape (n,1), labels
-        TID     -- numpy array of shape (n,1), track IDs
-
-
-        '''
-        # n = number of examples, d = dimensionality
-        self.X = X
-        self.y = y
-        self.TID = TID
-
-    def load_data(self, genre1=None, genre2=None):
-        '''
-            Load csv file into X, y, TID -- removes any examples with missing 
-            features
-
-        '''
-        # grab songs from csv files, remove any with missing year or any feature with nan
-        msd_csv_path = 'features_vs_genre.csv'
-        df = pd.read_csv(msd_csv_path)
-        df = df[df.year != 0].dropna(axis=0, how='any')
-
-        if(genre1 != None):
-            # Only grab examples of specified genres
-            df = df.loc[df['genre'].isin([genre1, genre2])]
-            print(df)
-        TID = df.as_matrix(columns=[df.columns[0]])
-        X = df.as_matrix(columns=df.columns[2:])
-        y = df.as_matrix(columns=[df.columns[1]])
-
-        # convert genre labels to numerical representation
-        le = LabelEncoder()
-        le.fit(y.ravel())
-        y = le.transform(y.ravel())
-
-        self.X = X
-        self.y = y
-        self.TID = TID
-
-        return self
 
 def main():
     data = MSDData()

@@ -2,8 +2,70 @@ import os
 import csv
 
 import numpy as np
+import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
+
+
+class MSDData:
+    '''
+    Class for storing msd data.
+    '''
+    def __init__(self, X=None, y=None, TID=None, colnames=None):
+        '''
+        Data class.
+
+        Attributes
+        --------------------
+        X       -- numpy array of shape (n,d), features
+        y       -- numpy array of shape (n,1), labels
+        TID     -- numpy array of shape (n,1), track IDs
+
+
+        '''
+        # n = number of examples, d = dimensionality
+        self.X = X
+        self.y = y
+        self.TID = TID
+        self.colnames = colnames
+
+    def load_data(self, genre1=None, genre2=None):
+        '''
+            Load csv file into X, y, TID -- removes any examples with missing
+            features
+
+        '''
+        # grab songs from csv files, remove any with missing year or any feature with nan
+        msd_csv_path = 'data/msd/msd_joined.csv'
+        df = pd.read_csv(msd_csv_path)
+        # drop year and song hotttnesss
+        # df = df.drop(['year', 'song_hotttnesss'], axis=1)
+        # df = df[df.year != 0].dropna(axis=0, how='any')
+
+        colnames = list(df.columns)
+        colnames.remove('song_id')
+        colnames.remove('genre')
+
+        self.colnames = np.array(colnames)
+
+        if(genre1 != None):
+            # Only grab examples of specified genres
+            df = df.loc[df['genre'].isin([genre1, genre2])]
+            print(df)
+        TID = df.as_matrix(columns=[df.columns[0]]).flatten()
+        X = df.as_matrix(columns=df.columns[2:])
+        y = df.as_matrix(columns=[df.columns[1]]).flatten()
+
+        # convert genre labels to numerical representation
+        le = LabelEncoder()
+        le.fit(y.ravel())
+        y = le.transform(y.ravel())
+
+        self.X = X
+        self.y = y
+        self.TID = TID
+
+        return self
 
 
 class MusixMatchData:
@@ -89,7 +151,9 @@ class MusixMatchData:
                 # keep track of row indices for observations
                 row_index = i - num_rows_skipped
 
-
+                if len(row) == 0:
+                    num_rows_skipped += 1
+                    continue
 
                 if row[0][0] == '%':
                     # store vocabulary as array
@@ -212,6 +276,88 @@ class MusixMatchData:
         '''Decode labels using sklearn.LabelEncoder'''
         self.y = self.label_encoder.inverse_transform(self.y.ravel())
         return self
+
+
+class MSDMXMData:
+    '''Class for joining MSD and MXM data.'''
+    def __init__(self, X_train=None, y_train=None, TID_train=None,
+                 X_test=None, y_test=None, TID_test=None,
+                 colnames=None, label_encoder=None):
+        self.X_train = X_train
+        self.y_train = y_train
+        self.TID_train = TID_train
+        self.X_test = X_test
+        self.y_test = y_test
+        self.TID_test = TID_test
+        self.colnames = colnames
+        self.label_encoder = label_encoder
+
+
+    def load_data(self):
+        # load MSD
+        msd_data = MSDData()
+        msd_data.load_data()
+
+        # load MXM
+        mxm_data = MusixMatchData()
+        try:
+            mxm_data.load_from_pickle(
+                pickled_data_path='data/musixmatch/pickled/',
+                suffix='all')
+        except:
+            mxm_data.write_to_pickle(
+                X_filename='data/musixmatch/mxm_all_data.txt',
+                genre_filename='genres.csv',
+                pickled_data_path='data/musixmatch/pickled/',
+                suffix='all')
+
+
+        # join data
+        assert(set(msd_data.TID.flatten()) == set(mxm_data.TID.flatten()))
+
+        # sort MSD by TID
+        sort_indices = np.argsort(msd_data.TID).flatten()
+        X_msd = msd_data.X[sort_indices]
+        y_msd = msd_data.y[sort_indices]
+        colnames_msd = msd_data.colnames
+
+        # sort MXM by TID
+        sort_indices = np.argsort(mxm_data.TID)
+        X_mxm = mxm_data.X[sort_indices]
+        y_mxm = mxm_data.y[sort_indices]
+        colnames_mxm = mxm_data.vocab
+
+        assert(np.all(y_msd == mxm_data.label_encoder.transform(y_mxm)))
+
+        # join data
+        TID = mxm_data.TID[sort_indices]
+        X = np.column_stack((X_mxm, X_msd))
+        y = y_mxm
+
+        # train stratified test split
+        train_indices, test_indices = train_test_split(
+            range(len(TID)),
+            stratify=y,
+            train_size=0.8,
+            random_state=123)
+
+        self.X_train = X[train_indices]
+        self.y_train = y[train_indices]
+        self.TID_train = TID[train_indices]
+
+        self.X_test = X[test_indices]
+        self.y_test = y[test_indices]
+        self.TID_test = TID[test_indices]
+
+        self.colnames = np.concatenate((colnames_mxm, colnames_msd))
+        self.label_encoder = mxm_data.label_encoder
+
+        # print('X shape: {}'.format(X.shape))
+        # print('y shape: {}'.format(y.shape))
+        # print('colnames shape: {}'.format(colnames.shape))
+        # print('TID shape: {}'.format(TID.shape))
+
+
 
 
 def ensure_directory(dir_path):
