@@ -36,7 +36,7 @@ class MSDData:
         self.y = y
         self.TID = TID
 
-    def load_data(self):
+    def load_data(self, genre1=None, genre2=None):
         '''
             Load csv file into X, y, TID -- removes any examples with missing 
             features
@@ -46,6 +46,12 @@ class MSDData:
         msd_csv_path = 'features_vs_genre.csv'
         df = pd.read_csv(msd_csv_path)
         df = df[df.year != 0].dropna(axis=0, how='any')
+
+        if(genre1 != None):
+            # Only grab examples of specified genres
+            df = df.loc[df['genre'].isin([genre1, genre2])]
+            print(df)
+            
         TID = df.as_matrix(columns=[df.columns[0]])
         X = df.as_matrix(columns=df.columns[2:])
         y = df.as_matrix(columns=[df.columns[1]])
@@ -62,7 +68,8 @@ class MSDData:
 def main():
     scaler = StandardScaler()
     data = MSDData()
-    data.load_data()
+    #data.load_data()
+    data.load_data('Blues', 'Rap')
 
     X = data.X
     y = data.y
