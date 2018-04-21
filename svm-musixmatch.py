@@ -275,7 +275,8 @@ def run_all_data():
     data = select_genres_MXMMSD(data, genre_list)
 
     # encode labels to get rid of strings
-    # data.encode_labels()
+    data.encode_labels()
+    print(set(data.y_train))
 
     # print quick summary statistics
     # print(Counter(data.y))
@@ -341,7 +342,7 @@ def run_all_data():
         'precision': precision,
         'f1': f1,
         'recall': recall,
-        'roc_auc': roc_auc,
+        # 'roc_auc': roc_auc,
     }
 
     print(

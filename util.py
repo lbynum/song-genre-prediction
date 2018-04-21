@@ -358,8 +358,8 @@ class MSDMXMData:
         # print('TID shape: {}'.format(TID.shape))
 
     def encode_labels(self):
-        self.y_train = self.label_encoder.transform(self.y_train.ravel())
-        self.y_test = self.label_encoder.transform(self.y_test.ravel())
+        self.y_train = self.label_encoder.transform(self.y_train)
+        self.y_test = self.label_encoder.transform(self.y_test)
         return self
 
 
