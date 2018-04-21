@@ -36,15 +36,18 @@ genres = pd.read_csv('genres.csv')
 
 # find intersection among training data, join with genre labels, and save as csv
 train_mxm_TIDs = set(train_mxm_TIDs)
-intersection = train_mxm_TIDs.intersection(msd_ids)
-train_genres = genres[[TID in intersection for TID in genres.iloc[:,0]]]
+intersection_train = train_mxm_TIDs.intersection(msd_ids)
+train_genres = genres[[TID in intersection_train for TID in genres.iloc[:,0]]]
 train_genres.to_csv('joined_genres_train.csv', index=False)
 
 # find intersection among test data, join with genre labels, and save as csv
 test_mxm_TIDs = set(test_mxm_TIDs)
-intersection = test_mxm_TIDs.intersection(msd_ids)
-test_genres = genres[[TID in intersection for TID in genres.iloc[:,0]]]
+intersection_test = test_mxm_TIDs.intersection(msd_ids)
+test_genres = genres[[TID in intersection_test for TID in genres.iloc[:,0]]]
 test_genres.to_csv('joined_genres_test.csv', index=False)
 
+all_TIDs = intersection_test.union(intersection_train)
+all_genres = genres[[TID in all_TIDs for TID in genres.iloc[:,0]]]
+all_genres.to_csv('joined_genres.csv', index=False)
 
 
