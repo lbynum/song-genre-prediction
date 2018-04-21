@@ -357,6 +357,11 @@ class MSDMXMData:
         # print('colnames shape: {}'.format(colnames.shape))
         # print('TID shape: {}'.format(TID.shape))
 
+    def encode_labels(self):
+        self.y_train = self.label_encoder.transform(self.y_train.ravel())
+        self.y_test = self.label_encoder.transform(self.y_test.ravel())
+        return self
+
 
 
 
@@ -370,7 +375,7 @@ def ensure_directory(dir_path):
     return True
 
 
-def stratified_random_sample(data, sample_proportion, random_state):
+def stratified_random_sample_mxm(data, sample_proportion, random_state):
     '''
     Create stratified random sample of sample_proportion of the data points.
 
@@ -409,7 +414,50 @@ def stratified_random_sample(data, sample_proportion, random_state):
     return sampled_data
 
 
-def select_genres(data, genre_list):
+def stratified_random_sample_MXMMSD(data, sample_proportion, random_state):
+    '''
+    Create stratified random sample of sample_proportion of the data points.
+
+    Parameters
+    --------------------
+        data                -- MusixMatchData object to sample from
+        sample_proportion   -- float, proportion to sample
+        random_state        -- int, random seed
+
+    Returns
+    --------------------
+        sampled_data        -- MusixMatchData object for sampled
+                               observations
+    '''
+    n, _ = data.X_train.shape
+    index_array = np.arange(n)
+    train_sample_indices, _ = train_test_split(
+        index_array,
+        stratify=data.y_train,
+        train_size=sample_proportion,
+        random_state=random_state)
+
+    # select examples from split
+    X_train = data.X_train[train_sample_indices]
+    y_train = data.y_train[train_sample_indices]
+    TID_train = data.TID_train[train_sample_indices]
+
+    sampled_data = MSDMXMData(
+        X_train=X_train,
+        y_train=y_train,
+        X_test=data.X_test,
+        y_test=data.y_test,
+        TID_train=TID_train,
+        TID_test=data.TID_test,
+        colnames=data.colnames,
+        label_encoder=data.label_encoder
+    )
+
+    return sampled_data
+
+
+
+def select_genres_mxm(data, genre_list):
     '''
     Select from data all points with label in genre_list.
 
@@ -439,5 +487,49 @@ def select_genres(data, genre_list):
         TID=TID,
         MXMID=MXMID,
         vocab=data.vocab)
+
+    return sampled_data
+
+
+def select_genres_MXMMSD(data, genre_list):
+    '''
+    Select from data all points with label in genre_list.
+
+
+    Parameters
+    --------------------
+        data        -- MusixMatchData object to sample from
+        genre_list  -- list of str, genres to select
+
+    Returns
+    --------------------
+        sampled_data        -- MusixMatchData object for sampled
+                               observations
+    '''
+    # get indices to sample
+    train_sample_indices = [index for index,genre in enumerate(data.y_train) 
+                            if genre in genre_list]
+    test_sample_indices = [index for index, genre in enumerate(data.y_test) 
+                           if genre in genre_list]
+
+    # select examples from split
+    X_train = data.X_train[train_sample_indices]
+    y_train = data.y_train[train_sample_indices]
+    TID_train = data.TID_train[train_sample_indices]
+
+    X_test = data.X_test[test_sample_indices]
+    y_test = data.y_test[test_sample_indices]
+    TID_test = data.TID_test[test_sample_indices]
+
+    sampled_data = MSDMXMData(
+        X_train=X_train,
+        y_train=y_train,
+        X_test=X_test,
+        y_test=y_test,
+        TID_train=TID_train,
+        TID_test=TID_test,
+        colnames=data.colnames,
+        label_encoder=data.label_encoder
+    )
 
     return sampled_data
