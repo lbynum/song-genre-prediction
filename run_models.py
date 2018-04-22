@@ -306,10 +306,10 @@ def run_all_data():
     data = MSDMXMData()
     data.load_data()
 
-    data = stratified_random_sample_MXMMSD(
-        data,
-        sample_proportion=0.1,
-        random_state=123)
+    # data = stratified_random_sample_MXMMSD(
+    #     data,
+    #     sample_proportion=0.1,
+    #     random_state=123)
 
     # select only two genres
     genre_list = ['Rap', 'Pop']
