@@ -357,8 +357,8 @@ def run_all_data():
             },
         'RandomForestClassifier':
             {
-                'clf__n_estimators': (10, 50, 100, 500, 1000),
-                'clf__max_depth': (1, 10, 20, 30, None),
+                'clf__n_estimators': (10, 50, 100, 1000),
+                'clf__max_depth': (10, 20, 30, None),
                 'clf__max_features': ('auto', 'sqrt', 'log2', None),
                 'clf__class_weight': ('balanced', None),
                 'clf__criterion': ('gini', 'entropy'),
@@ -425,7 +425,7 @@ def run_all_data():
                 cv=num_folds,
                 scoring=metric,
                 n_jobs=-2,
-                verbose=0
+                verbose=1
             )
             grid_search.fit(data.X_train, data.y_train)
 
