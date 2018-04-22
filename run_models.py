@@ -9,6 +9,7 @@ from sklearn.svm import SVC
 from sklearn.linear_model import LogisticRegression
 from sklearn.dummy import DummyClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import (accuracy_score, confusion_matrix, f1_score,
                              roc_auc_score, recall_score,
                              precision_score, make_scorer)
@@ -99,10 +100,14 @@ def run_musixmatch():
             Pipeline([
                 ('clf', SVC(kernel='linear'))
             ]),
-        # 'LogisticRegression':
-        #     Pipeline([
-        #         ('clf', LogisticRegression())
-        #     ]),
+        'MultinomialNB':
+            Pipeline([
+                ('clf', MultinomialNB())
+            ]),
+        'LogisticRegression':
+            Pipeline([
+                ('clf', LogisticRegression())
+            ]),
     }
 
     parameters_dict = {
@@ -124,6 +129,10 @@ def run_musixmatch():
             {
                 'clf__C': (1,),  # tuple(10.0 ** np.arange(-3, 3)),
                 # 'clf__class_weight': ('balanced', None)
+            },
+        'MultinomialNB':
+            {
+                'clf__alpha': (1.0,),  # tuple(10.0 ** np.arange(-3, 3)),
             },
     }
 
@@ -331,36 +340,49 @@ def run_all_data():
             Pipeline([
                 ('clf', SVC(kernel='linear'))
             ]),
-        # 'LogisticRegression':
-        #     Pipeline([
-        #         ('clf', LogisticRegression())
-        #     ]),
+        'LogisticRegression':
+            Pipeline([
+                ('clf', LogisticRegression())
+            ]),
+        'rbf_SVM':
+            Pipeline([
+                ('clf', SVC(kernel='rbf'))
+            ]),
     }
 
     parameters_dict = {
         'DummyClassifier':
             {
                 'clf__strategy': ('most_frequent',)
-                #'('stratified', 'most_frequent', 'prior', 'uniform')
             },
         'RandomForestClassifier':
             {
-                'clf__n_estimators': (10,)
+                'clf__n_estimators': (10, 50, 100, 1000),
+                'clf__max_depth': (10, 20, 30, None),
+                'clf__max_features': ('auto', 'sqrt', 'log2', None),
+                'clf__class_weight': ('balanced', None),
+                'clf__criterion': ('gini', 'entropy'),
             },
         'LogisticRegression':
             {
-                'clf__C': (1,),#tuple(10.0 ** np.arange(-3, 3)),
-                'clf__class_weight': ('balanced', None)
+                'clf__C': (1, 10, 100, 1000),
+                'clf__solver': ('sag'), # faster
+                'clf__class_weight': ('balanced', None),
             },
         'linear_SVM':
             {
-                'clf__C': (1,),  # tuple(10.0 ** np.arange(-3, 3)),
-                # 'clf__class_weight': ('balanced', None)
+                'clf__C': (1, 10, 100, 1000),
+                'clf__class_weight': ('balanced', None),
+            },
+        'rbf_SVM':
+            {
+                'clf__C': (1, 10, 100, 1000),
+                'clf__class_weight': ('balanced', None),
+                'clf__gamma': ('auto',0.1, 0.2, 0.5, 1.0),
             },
     }
 
     best_estimators = defaultdict(dict)
-
 
     # grid search with respect to different metrics and print results
     # define scorers for multi-class classification
@@ -370,19 +392,22 @@ def run_all_data():
     recall = make_scorer(recall_score, average='weighted')
     roc_auc = make_scorer(roc_auc_score, average='weighted')
     scoring_dict = {
-        'accuracy': accuracy,
-        'precision': precision,
+        # 'accuracy': accuracy,
+        # 'precision': precision,
         'f1': f1,
-        'recall': recall,
+        # 'recall': recall,
         # 'roc_auc': roc_auc,
     }
+
+    # define number of folds
+    num_folds = 3
 
     print(
     '''
     ############################################################################
-    # Grid Search CV Performance
+    # Grid Search {}-fold CV Performance
     ############################################################################
-    '''
+    '''.format(num_folds)
     )
 
     # loop through each classifier and each metric to get CV performance
@@ -397,9 +422,10 @@ def run_all_data():
             grid_search = GridSearchCV(
                 pipeline,
                 parameters,
+                cv=num_folds,
                 scoring=metric,
-                n_jobs=1,
-                verbose=0
+                n_jobs=-2,
+                verbose=1
             )
             grid_search.fit(data.X_train, data.y_train)
 
@@ -486,7 +512,7 @@ def run_all_data():
     ############################################################################
     '''
     )
-    best_pipeline = best_estimators['linear_SVM']['accuracy']
+    best_pipeline = best_estimators['linear_SVM']['f1']
 
     importance_scores = list(best_pipeline._final_estimator.coef_[0])
 
@@ -507,6 +533,6 @@ def run_all_data():
 
 
 if __name__ == '__main__':
-    # run_all_data()
+    run_all_data()
     # run_musixmatch()
-    run_msd()
+    # run_msd()
