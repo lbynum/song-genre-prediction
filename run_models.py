@@ -17,6 +17,38 @@ from util import (MusixMatchData, stratified_random_sample_mxm,
                   select_genres_mxm, select_genres_MXMMSD, MSDMXMData,
                   stratified_random_sample_MXMMSD)
 
+def run_msd():
+    ############################################################################
+    # load data
+    ############################################################################
+    data = MSDMXMData()
+    data.load_data()
+
+    data = stratified_random_sample_MXMMSD(
+        data,
+        sample_proportion=0.1,
+        random_state=123)
+
+    # select only two genres
+    genre_list = ['Rap', 'Pop']
+    data = select_genres_MXMMSD(data, genre_list)
+
+    # encode labels to get rid of strings
+    data.encode_labels()
+
+    # select only msd features
+    colnames = data.colnames[-10:]
+    X_train = data.X_train[:,-10:]
+    y_train = data.y_train
+
+    X_test = data.X_test[:,-10:]
+    y_test = data.y_test
+
+
+
+
+
+
 
 def run_musixmatch():
     ############################################################################
@@ -41,7 +73,7 @@ def run_musixmatch():
 
     # select only two genres
     genre_list = ['Rap', 'Pop']
-    data_train = select_genres(data_train, genre_list)
+    data_train = select_genres_mxm(data_train, genre_list)
 
     # encode labels to get rid of strings
     data_train.encode_labels()
@@ -169,7 +201,7 @@ def run_musixmatch():
         )
 
     # select the same genres
-    data_test = select_genres(data_test, genre_list)
+    data_test = select_genres_mxm(data_test, genre_list)
     data_test.encode_labels()
 
     print(
@@ -475,4 +507,6 @@ def run_all_data():
 
 
 if __name__ == '__main__':
-    run_all_data()
+    # run_all_data()
+    # run_musixmatch()
+    run_msd()
