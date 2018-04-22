@@ -365,18 +365,17 @@ def run_all_data():
             },
         'LogisticRegression':
             {
-                'clf__C': (1, 10, 100, 1000),
-                'clf__solver': ('sag',), # faster
+                'clf__C': (0.1, 1, 10, 100),
                 'clf__class_weight': ('balanced', None),
             },
         'linear_SVM':
             {
-                'clf__C': (1, 10, 100, 1000),
+                'clf__C': (0.1, 1, 10, 100),
                 'clf__class_weight': ('balanced', None),
             },
         'rbf_SVM':
             {
-                'clf__C': (1, 10, 100, 1000),
+                'clf__C': (0.1, 1, 10, 100),
                 'clf__class_weight': ('balanced', None),
                 'clf__gamma': ('auto',0.1, 0.2, 0.5, 1.0),
             },
