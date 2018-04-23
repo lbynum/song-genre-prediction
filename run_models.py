@@ -517,7 +517,7 @@ def run_all_data():
     ############################################################################
     '''
     )
-    best_pipeline = best_estimators['RandomForestClassifier']['accuracy']
+    best_pipeline = best_estimators['RandomForestClassifier']['f1']
 
     importance_scores = best_pipeline._final_estimator.feature_importances_
 
