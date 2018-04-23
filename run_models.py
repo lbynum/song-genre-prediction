@@ -388,7 +388,7 @@ def run_all_data():
         'RandomForestClassifier':
             {
                 'clf__n_estimators': (50,),
-                'clf__max_depth': (10, 20, 30, None),
+                'clf__max_depth': (None,),
                 'clf__max_features': ('sqrt',),
                 'clf__class_weight': ('balanced',),
                 'clf__criterion': ('gini',),
