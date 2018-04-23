@@ -82,7 +82,7 @@ def get_all_examples(basedir, genre_dict, ext='.h5'):
                 title = GETTERS.get_title(h5)
                 # length of sections_start array gives us number of start
                 num_sections = len(GETTERS.get_sections_start(h5))
-                num_segments = len(GETTERs.get_segments_confidence(h5))
+                num_segments = len(GETTERS.get_segments_confidence(h5))
                 example = pd.DataFrame(data=[(artist_name, title, song_id, genre, year, key, key_confidence, mode,
                                               mode_confidence, 
                                               time_signature, time_signature_confidence, duration, 
