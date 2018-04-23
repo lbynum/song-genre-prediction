@@ -21,7 +21,7 @@ import numpy as np  # get it at: http://numpy.scipy.org/
 
 # path to the Million Song Dataset subset (uncompressed)
 # CHANGE IT TO YOUR LOCAL CONFIGURATION
-_location_ = os.path.realpath(
+__location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname('MillionSongSubset')))
 msd_subset_path = __location__ + '/MillionSongSubset'
 # print "here is the path: ", msd_subset_path
@@ -30,7 +30,7 @@ msd_subset_addf_path = os.path.join(msd_subset_path, 'AdditionalFiles')
 assert os.path.isdir(msd_subset_path), 'wrong path'  # sanity check
 # path to the Million Song Dataset code
 # CHANGE IT TO YOUR LOCAL CONFIGURATION
-_location_ = os.path.realpath(
+__location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname('MSongsDB')))
 msd_code_path = __location__
 assert os.path.isdir(msd_code_path), 'wrong path'  # sanity check
