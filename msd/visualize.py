@@ -78,15 +78,17 @@ def get_all_examples(basedir, genre_dict, ext='.h5'):
                 mode_confidence = GETTERS.get_mode_confidence(h5)
                 time_signature = GETTERS.get_time_signature(h5)
                 time_signature_confidence = GETTERS.get_time_signature_confidence(h5)
+                artist_name = GETTERS.get_artist_name(h5)
+                title = GETTERS.get_title(h5)
                 # length of sections_start array gives us number of start
                 num_sections = len(GETTERS.get_sections_start(h5))
                 num_segments = len(GETTERs.get_segments_confidence(h5))
-                example = pd.DataFrame(data=[(song_id, genre, year, key, key_confidence, mode,
+                example = pd.DataFrame(data=[(artist_name, title, song_id, genre, year, key, key_confidence, mode,
                                               mode_confidence, 
                                               time_signature, time_signature_confidence, duration, 
                                               end_of_fade_in, loudness, 
                                               song_hotttnesss, tempo, num_sections)], 
-                                       columns=['song_id', 'genre', 'year', 
+                                       columns=['artist_name', 'title','song_id', 'genre', 'year',
                                                 'key', 'key_confidence', 'mode', 'mode_confidence', 'time_signature',
                                                 'time_signature_confidence', 
                                                 'duration', 'end_of_fade_in', 
