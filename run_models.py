@@ -27,7 +27,7 @@ def run_msd():
 
     data = stratified_random_sample_MXMMSD(
         data,
-        sample_proportion=0.1,
+        sample_proportion=0.01,
         random_state=123)
 
     # select only two genres
@@ -306,10 +306,10 @@ def run_all_data():
     data = MSDMXMData()
     data.load_data()
 
-    data = stratified_random_sample_MXMMSD(
-        data,
-        sample_proportion=0.1,
-        random_state=123)
+    # data = stratified_random_sample_MXMMSD(
+    #     data,
+    #     sample_proportion=0.1,
+    #     random_state=123)
 
     # select only two genres
     genre_list = ['Rap', 'Pop']
@@ -350,6 +350,36 @@ def run_all_data():
             ]),
     }
 
+    # parameters_dict = {
+    #     'DummyClassifier':
+    #         {
+    #             'clf__strategy': ('most_frequent',)
+    #         },
+    #     'RandomForestClassifier':
+    #         {
+    #             'clf__n_estimators': (10, 50, 100, 1000),
+    #             'clf__max_depth': (10, 20, 30, None),
+    #             'clf__max_features': ('auto', 'sqrt', 'log2', None),
+    #             'clf__class_weight': ('balanced', None),
+    #             'clf__criterion': ('gini', 'entropy'),
+    #         },
+    #     'LogisticRegression':
+    #         {
+    #             'clf__C': (0.1, 1, 10, 100),
+    #             'clf__class_weight': ('balanced', None),
+    #         },
+    #     'linear_SVM':
+    #         {
+    #             'clf__C': (0.1, 1, 10, 100),
+    #             'clf__class_weight': ('balanced', None),
+    #         },
+    #     'rbf_SVM':
+    #         {
+    #             'clf__C': (0.1, 1, 10, 100),
+    #             'clf__class_weight': ('balanced', None),
+    #             'clf__gamma': ('auto',0.1, 0.2, 0.5, 1.0),
+    #         },
+    # }
     parameters_dict = {
         'DummyClassifier':
             {
@@ -357,28 +387,27 @@ def run_all_data():
             },
         'RandomForestClassifier':
             {
-                'clf__n_estimators': (10, 50, 100, 1000),
-                'clf__max_depth': (10, 20, 30, None),
-                'clf__max_features': ('auto', 'sqrt', 'log2', None),
-                'clf__class_weight': ('balanced', None),
-                'clf__criterion': ('gini', 'entropy'),
+                'clf__n_estimators': (50,),
+                'clf__max_depth': (None,),
+                'clf__max_features': ('sqrt',),
+                'clf__class_weight': ('balanced',),
+                'clf__criterion': ('gini',),
             },
         'LogisticRegression':
             {
-                'clf__C': (1, 10, 100, 1000),
-                'clf__solver': ('sag'), # faster
-                'clf__class_weight': ('balanced', None),
+                'clf__C': (1,),
+                'clf__class_weight': ('balanced',),
             },
         'linear_SVM':
             {
-                'clf__C': (1, 10, 100, 1000),
-                'clf__class_weight': ('balanced', None),
+                'clf__C': (1,),
+                'clf__class_weight': ('balanced',),
             },
         'rbf_SVM':
             {
-                'clf__C': (1, 10, 100, 1000),
-                'clf__class_weight': ('balanced', None),
-                'clf__gamma': ('auto',0.1, 0.2, 0.5, 1.0),
+                'clf__C': (1,),
+                'clf__class_weight': ('balanced',),
+                'clf__gamma': ('auto',),
             },
     }
 
@@ -488,7 +517,7 @@ def run_all_data():
     ############################################################################
     '''
     )
-    best_pipeline = best_estimators['RandomForestClassifier']['accuracy']
+    best_pipeline = best_estimators['RandomForestClassifier']['f1']
 
     importance_scores = best_pipeline._final_estimator.feature_importances_
 
