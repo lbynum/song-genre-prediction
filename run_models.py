@@ -429,7 +429,7 @@ def run_all_data():
     }
 
     # define number of folds
-    num_folds = 2
+    num_folds = 3
 
     print(
     '''
