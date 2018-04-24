@@ -312,8 +312,8 @@ def run_all_data():
         random_state=123)
 
     # select only two genres
-    genre_list = ['Rap', 'Pop']
-    data = select_genres_MXMMSD(data, genre_list)
+    # genre_list = ['Rap', 'Pop']
+    # data = select_genres_MXMMSD(data, genre_list)
 
     # encode labels to get rid of strings
     data.encode_labels()
