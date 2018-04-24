@@ -300,15 +300,23 @@ def run_musixmatch():
 
 
 def run_all_data():
+    sample_proportion = 0.3
     ############################################################################
     # train models
     ############################################################################
+    print(
+    '''
+    ############################################################################
+    # Fitting models with {}% training sample
+    ############################################################################
+    '''.format(sample_proportion*100)
+    )
     data = MSDMXMData()
     data.load_data()
 
     data = stratified_random_sample_MXMMSD(
         data,
-        sample_proportion=0.3,
+        sample_proportion=sample_proportion,
         random_state=123)
 
     # select only two genres
