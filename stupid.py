@@ -27,7 +27,7 @@ msd_subset_path = __location__ + '/MillionSongSubset'
 # print "here is the path: ", msd_subset_path
 msd_subset_data_path = os.path.join(msd_subset_path, 'data')
 msd_subset_addf_path = os.path.join(msd_subset_path, 'AdditionalFiles')
-assert os.path.isdir(msd_subset_path), 'wrong path'  # sanity check
+# assert os.path.isdir(msd_subset_path), 'wrong path'  # sanity check
 # path to the Million Song Dataset code
 # CHANGE IT TO YOUR LOCAL CONFIGURATION
 __location__ = os.path.realpath(

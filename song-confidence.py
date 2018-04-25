@@ -50,11 +50,11 @@ def get_other_metrics():
     # n, _ = data.X_test.shape
     # bootstrap_indices = np.random.randint(0, n, (num_bootstrap_samples, n))
 
-    plt.hist(y_test)
-    plt.show()
+    # plt.hist(y_test)
+    # plt.show()
 
-    linear_svm_clf.fit(data.X_train, y_train)
-    y_pred = linear_svm_clf.decision_function(data.X_test)
+    linear_svm_clf.fit(data.X_train[:,:-10], y_train)
+    y_pred = linear_svm_clf.decision_function(data.X_test[:,:-10])
     max_index = np.argmax(y_pred)
     min_index = np.argmin(y_pred)
     # print('Max index', max_index)
